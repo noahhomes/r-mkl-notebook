@@ -25,7 +25,7 @@ build:
 
 .PHONY: pull
 pull:
-				docker-compose pull
+				@NB_UID=${NB_UID} docker-compose pull
 
 .PHONY: bash
 bash:
