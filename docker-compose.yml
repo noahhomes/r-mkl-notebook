@@ -1,0 +1,19 @@
+version: "3"
+volumes:
+  work:
+    driver: local
+
+services:
+  notebook:
+    image: noahhomes/r-mkl-notebook
+    ports:
+      - 8888:8888
+    hostname: ${USER}-notebook
+    user: root
+    environment:
+      GRANT_SUDO: 'yes'
+      JUPYTER_ENABLE_LAB: 'yes'
+      NB_UID: ${NB_UID}
+    volumes:
+      - work:/home/jovyan/work:cached
+    command: start-notebook.sh --NotebookApp.custom_display_url=http://localhost:8888
