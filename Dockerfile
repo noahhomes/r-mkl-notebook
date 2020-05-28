@@ -35,8 +35,12 @@ RUN git clone --depth=1 https://github.com/Bash-it/bash-it.git ~/.bash_it && \
 # this enables R to use mkl library
 RUN conda install -c conda-forge --quiet --yes \
     'libblas=3.8.0=14_mkl' \
+    'numexpr=2.7.*' \
+    'numpy=1.18.*' \
     'python-language-server' \
     'r-languageserver' \
+    'scikit-learn=0.22.*' \
+    'scipy=1.4.*' \
     && \
     conda clean --all -f -y && \
     fix-permissions $CONDA_DIR
