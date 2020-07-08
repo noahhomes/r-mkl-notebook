@@ -25,6 +25,9 @@ RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - &
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# grant sudo
+RUN echo "$NB_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/notebook
+
 USER $NB_USER
 
 # bash improvements for developer environment
