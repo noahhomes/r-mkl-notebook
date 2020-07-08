@@ -1,4 +1,4 @@
-FROM jupyter/r-notebook:3b1f4f5e6cc1
+FROM jupyter/r-notebook:5197709e9f23
 
 USER root
 
@@ -25,7 +25,7 @@ RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - &
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# grant sudo
+# always grant sudo since sometimes this is flakey when running on jhub
 RUN echo "$NB_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/notebook
 
 USER $NB_USER
@@ -52,6 +52,10 @@ RUN R -e "install.packages(c('Hmisc', 'rasterVis', 'caret', 'crayon', 'devtools'
     rm -rf /tmp/downloaded_packages/ /tmp/*.rds
 
 # install some additional jupyter lab extensions
-RUN jupyter labextension install @ijmbarr/jupyterlab_spellchecker @jupyterlab/latex @krassowski/jupyterlab-lsp
+##RUN jupyter labextension install @ijmbarr/jupyterlab_spellchecker @jupyterlab/latex @krassowski/jupyterlab-lsp
+
+# latex currently broken due to: https://github.com/jupyterlab/jupyterlab-latex/issues/135
+# install it manually using instructions in the GH issue if you need it
+RUN jupyter labextension install @ijmbarr/jupyterlab_spellchecker @krassowski/jupyterlab-lsp
 
 COPY files/mount-gcsfuse.sh /usr/local/bin
