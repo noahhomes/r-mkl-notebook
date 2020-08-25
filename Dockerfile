@@ -11,7 +11,8 @@ RUN apt-get -qy update && apt-get install -qy \
     libmysqlclient-dev \
     lsb-core \
     nano \
-    vim
+    vim \
+    openssh-server
 
 # add gcp repo and install packages
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
@@ -44,18 +45,17 @@ RUN conda install -c conda-forge --quiet --yes \
     'r-languageserver' \
     'scikit-learn=0.22.*' \
     'scipy=1.4.*' \
+    'jupyterlab_latex' \
     && \
     conda clean --all -f -y && \
     fix-permissions $CONDA_DIR
 
-RUN R -e "install.packages(c('Hmisc', 'rasterVis', 'caret', 'crayon', 'devtools', 'forecast', 'hexbin', 'htmltools', 'htmlwidgets', 'IRkernel', 'plyr', 'randomForest', 'curl', 'reshape2', 'rmarkdown', 'shiny', 'readr',  'RcppRoll', 'bigrquery', 'bit64', 'RMySQL'), repo='http://cran.rstudio.com/')" && \
+RUN R -e "install.packages(c('Hmisc', 'rasterVis', 'caret', 'crayon', 'devtools', 'forecast', 'hexbin', 'htmltools', 'htmlwidgets', 'IRkernel', 'plyr', 'randomForest', 'curl', 'reshape2', 'rmarkdown', 'shiny', 'readr',  'RcppRoll', 'bigrquery', 'bit64', 'RMySQL', 'RestRserve', 'latex2exp'), repo='http://cran.rstudio.com/')" && \
     rm -rf /tmp/downloaded_packages/ /tmp/*.rds
 
 # install some additional jupyter lab extensions
-##RUN jupyter labextension install @ijmbarr/jupyterlab_spellchecker @jupyterlab/latex @krassowski/jupyterlab-lsp
-
-# latex currently broken due to: https://github.com/jupyterlab/jupyterlab-latex/issues/135
-# install it manually using instructions in the GH issue if you need it
-RUN jupyter labextension install @ijmbarr/jupyterlab_spellchecker @krassowski/jupyterlab-lsp
+RUN jupyter labextension install @ijmbarr/jupyterlab_spellchecker \
+    @jupyterlab/latex \
+    @krassowski/jupyterlab-lsp
 
 COPY files/mount-gcsfuse.sh /usr/local/bin
