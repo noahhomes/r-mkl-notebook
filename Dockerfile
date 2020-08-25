@@ -11,8 +11,8 @@ RUN apt-get -qy update && apt-get install -qy \
     libmysqlclient-dev \
     lsb-core \
     nano \
-    vim \
-    openssh-server
+    openssh-client \
+    vim
 
 # add gcp repo and install packages
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
@@ -38,6 +38,7 @@ RUN git clone --depth=1 https://github.com/Bash-it/bash-it.git ~/.bash_it && \
 
 # this enables R to use mkl library
 RUN conda install -c conda-forge --quiet --yes \
+    'jupyterlab_latex' \
     'libblas=3.8.0=14_mkl' \
     'numexpr=2.7.*' \
     'numpy=1.18.*' \
@@ -45,7 +46,6 @@ RUN conda install -c conda-forge --quiet --yes \
     'r-languageserver' \
     'scikit-learn=0.22.*' \
     'scipy=1.4.*' \
-    'jupyterlab_latex' \
     && \
     conda clean --all -f -y && \
     fix-permissions $CONDA_DIR
