@@ -46,6 +46,7 @@ RUN conda install -c conda-forge --quiet --yes \
     'r-languageserver' \
     'scikit-learn=0.22.*' \
     'scipy=1.4.*' \
+    'jupyterlab_latex' \
     && \
     conda clean --all -f -y && \
     fix-permissions $CONDA_DIR
