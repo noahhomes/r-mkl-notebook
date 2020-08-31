@@ -1,4 +1,4 @@
-FROM jupyter/r-notebook:5197709e9f23
+FROM jupyter/r-notebook:6d42503c684f
 
 USER root
 
@@ -12,7 +12,8 @@ RUN apt-get -qy update && apt-get install -qy \
     lsb-core \
     nano \
     openssh-client \
-    vim
+    vim \
+    cmake 
 
 # add gcp repo and install packages
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
@@ -51,12 +52,24 @@ RUN conda install -c conda-forge --quiet --yes \
     conda clean --all -f -y && \
     fix-permissions $CONDA_DIR
 
-RUN R -e "install.packages(c('Hmisc', 'rasterVis', 'caret', 'crayon', 'devtools', 'forecast', 'hexbin', 'htmltools', 'htmlwidgets', 'IRkernel', 'plyr', 'randomForest', 'curl', 'reshape2', 'rmarkdown', 'shiny', 'readr',  'RcppRoll', 'bigrquery', 'bit64', 'RMySQL', 'RestRserve', 'latex2exp'), repo='http://cran.rstudio.com/')" && \
+RUN R -e "install.packages(c('Hmisc', 'rasterVis', 'caret', 'crayon', 'devtools', 'forecast', 'hexbin', 'htmltools', 'htmlwidgets', 'IRkernel', 'plyr', 'randomForest', 'curl', 'reshape2', 'rmarkdown', 'shiny', 'readr',  'RcppRoll', 'bigrquery', 'bit64', 'RMySQL', 'RestRserve', 'latex2exp', 'xgboost'), repo='http://cran.rstudio.com/')" && \
     rm -rf /tmp/downloaded_packages/ /tmp/*.rds
 
 # install some additional jupyter lab extensions
 RUN jupyter labextension install @ijmbarr/jupyterlab_spellchecker \
     @jupyterlab/latex \
     @krassowski/jupyterlab-lsp
+
+RUN cd /tmp && \
+    git clone --recursive https://github.com/microsoft/LightGBM && \
+    cd LightGBM && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make -j4 && \
+    cd .. && \
+    Rscript build_r.R && \
+    cd /tmp && \
+    rm -rf LightGBM
 
 COPY files/mount-gcsfuse.sh /usr/local/bin
