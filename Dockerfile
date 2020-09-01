@@ -47,7 +47,10 @@ RUN conda install -c conda-forge --quiet --yes \
     'r-languageserver' \
     'scikit-learn=0.22.*' \
     'scipy=1.4.*' \
-    'jupyterlab_latex' \
+    'pandas' \
+    'seaborn' \
+    'xgboost' \
+    'scikit-optimize' \
     && \
     conda clean --all -f -y && \
     fix-permissions $CONDA_DIR
@@ -61,7 +64,7 @@ RUN jupyter labextension install @ijmbarr/jupyterlab_spellchecker \
     @krassowski/jupyterlab-lsp
 
 RUN cd /tmp && \
-    git clone --recursive https://github.com/microsoft/LightGBM && \
+    git clone --recursive https://github.com/microsoft/LightGBM.git && \
     cd LightGBM && \
     mkdir build && \
     cd build && \
@@ -69,6 +72,8 @@ RUN cd /tmp && \
     make -j4 && \
     cd .. && \
     Rscript build_r.R && \
+    cd python-package && \
+    python setup.py install && \
     cd /tmp && \
     rm -rf LightGBM
 
