@@ -1,4 +1,4 @@
-FROM jupyter/r-notebook:6d42503c684f
+FROM jupyter/r-notebook:36d857bb0121
 
 USER root
 
@@ -51,17 +51,20 @@ RUN conda install -c conda-forge --quiet --yes \
     'seaborn' \
     'xgboost' \
     'scikit-optimize' \
+    'jupyter-lsp' \
+    'ipywidgets' \
     && \
     conda clean --all -f -y && \
     fix-permissions $CONDA_DIR
 
-RUN R -e "install.packages(c('Hmisc', 'rasterVis', 'caret', 'crayon', 'devtools', 'forecast', 'hexbin', 'htmltools', 'htmlwidgets', 'IRkernel', 'plyr', 'randomForest', 'curl', 'reshape2', 'rmarkdown', 'shiny', 'readr',  'RcppRoll', 'bigrquery', 'bit64', 'RMySQL', 'RestRserve', 'latex2exp', 'xgboost'), repo='http://cran.rstudio.com/')" && \
+RUN R -e "install.packages(c('Hmisc', 'rasterVis', 'caret', 'crayon', 'devtools', 'forecast', 'hexbin', 'htmltools', 'htmlwidgets', 'IRkernel', 'plyr', 'randomForest', 'curl', 'reshape2', 'rmarkdown', 'shiny', 'readr',  'RcppRoll', 'bigrquery', 'bit64', 'RMySQL', 'RestRserve', 'latex2exp', 'xgboost', 'rBayesianOptimization', 'ParBayesianOptimization', 'Metrics'), repo='http://cran.rstudio.com/')" && \
     rm -rf /tmp/downloaded_packages/ /tmp/*.rds
 
 # install some additional jupyter lab extensions
 RUN jupyter labextension install @ijmbarr/jupyterlab_spellchecker \
     @jupyterlab/latex \
-    @krassowski/jupyterlab-lsp
+    @krassowski/jupyterlab-lsp \
+    @jupyter-widgets/jupyterlab-manager
 
 RUN cd /tmp && \
     git clone --recursive https://github.com/microsoft/LightGBM.git && \
