@@ -1,4 +1,4 @@
-FROM jupyter/r-notebook:36d857bb0121
+FROM jupyter/r-notebook:399cbb986c6b
 
 USER root
 
@@ -53,6 +53,11 @@ RUN conda install -c conda-forge --quiet --yes \
     'scikit-optimize' \
     'jupyter-lsp' \
     'ipywidgets' \
+    'openpyxl' \
+    'gcsfs' \
+    'pyarrow' \
+    'fsspec' \
+    'psycopg2' \
     && \
     conda clean --all -f -y && \
     fix-permissions $CONDA_DIR
