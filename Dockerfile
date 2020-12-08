@@ -12,6 +12,7 @@ RUN apt-get -qy update && apt-get install -qy \
     lsb-core \
     nano \
     openssh-client \
+    gdb \
     vim \
     cmake 
 
