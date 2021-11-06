@@ -1,4 +1,7 @@
-FROM jupyter/r-notebook:399cbb986c6b
+FROM jupyter/r-notebook:7aa954ab78d1
+#5211732116f7
+#7e07b801d92b
+#399cbb986c6b
 
 USER root
 
@@ -9,12 +12,17 @@ RUN apt-get -qy update && apt-get install -qy \
     htop \
     less \
     libmysqlclient-dev \
+    postgresql-client \
+    libssl-dev \
+    libpq-dev \
     lsb-core \
     nano \
     openssh-client \
     gdb \
     vim \
-    cmake 
+    cmake \
+    graphviz \
+    latexmk
 
 # add gcp repo and install packages
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
@@ -38,16 +46,22 @@ RUN git clone --depth=1 https://github.com/Bash-it/bash-it.git ~/.bash_it && \
     bash ~/.bash_it/install.sh --silent && \
     echo "export SCM_CHECK=false" >> /home/$NB_USER/.bashrc
 
+
+#RUN conda config --add channels conda-forge
+
+#RUN conda config --remove channels conda-forge
+RUN conda config --set channel_priority flexible
+
 # this enables R to use mkl library
-RUN conda install -c conda-forge --quiet --yes \
+RUN conda install --no-channel-priority -c conda-forge --quiet --yes \
     'jupyterlab_latex' \
-    'libblas=3.8.0=14_mkl' \
-    'numexpr=2.7.*' \
-    'numpy=1.18.*' \
+    'libblas' \
+    'numexpr' \
+    'numpy' \
     'python-language-server' \
     'r-languageserver' \
-    'scikit-learn=0.22.*' \
-    'scipy=1.4.*' \
+    'scikit-learn' \
+    'scipy' \
     'pandas' \
     'seaborn' \
     'xgboost' \
@@ -59,18 +73,29 @@ RUN conda install -c conda-forge --quiet --yes \
     'pyarrow' \
     'fsspec' \
     'psycopg2' \
+    'parse' \
+    'r-rastervis' \
+    'r-hmisc' \
+    'r-juniperkernel' \
+    'xeus-python' \
+    'jupyterlab_code_formatter' \
     && \
     conda clean --all -f -y && \
     fix-permissions $CONDA_DIR
 
-RUN R -e "install.packages(c('Hmisc', 'rasterVis', 'caret', 'crayon', 'devtools', 'forecast', 'hexbin', 'htmltools', 'htmlwidgets', 'IRkernel', 'plyr', 'randomForest', 'curl', 'reshape2', 'rmarkdown', 'shiny', 'readr',  'RcppRoll', 'bigrquery', 'bit64', 'RMySQL', 'RestRserve', 'latex2exp', 'xgboost', 'rBayesianOptimization', 'ParBayesianOptimization', 'Metrics'), repo='http://cran.rstudio.com/')" && \
-    rm -rf /tmp/downloaded_packages/ /tmp/*.rds
-
 # install some additional jupyter lab extensions
 RUN jupyter labextension install @ijmbarr/jupyterlab_spellchecker \
     @jupyterlab/latex \
+    #@joequant/jupyterlab-latex \
     @krassowski/jupyterlab-lsp \
     @jupyter-widgets/jupyterlab-manager
+
+RUN R -e "install.packages(c( 'caret', 'crayon', 'devtools', 'forecast', 'hexbin', 'htmltools', 'htmlwidgets', 'IRkernel', 'plyr', 'randomForest', 'curl', 'reshape2', 'rmarkdown', 'shiny', 'readr',  'RcppRoll', 'bigrquery', 'bit64', 'RMySQL', 'RestRserve', 'latex2exp', 'xgboost', 'rBayesianOptimization', 'ParBayesianOptimization', 'Metrics', 'RPostgreSQL', 'formatR'), repo='http://cran.rstudio.com/')" && \
+    rm -rf /tmp/downloaded_packages/ /tmp/*.rds
+
+RUN R -e "update.packages(ask = F, repo='http://cran.rstudio.com/')"
+
+RUN R -e 'devtools::install_github("JuniperKernel/JuniperKernel")'
 
 RUN cd /tmp && \
     git clone --recursive https://github.com/microsoft/LightGBM.git && \
@@ -86,4 +111,15 @@ RUN cd /tmp && \
     cd /tmp && \
     rm -rf LightGBM
 
+
 COPY files/mount-gcsfuse.sh /usr/local/bin
+
+
+USER root
+ADD textbook.tar.gz /tmp
+
+RUN jupyter labextension install /tmp/Textbook
+
+RUN rm -rf /tmp/textbook
+
+USER $NB_USER
